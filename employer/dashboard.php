@@ -79,9 +79,16 @@ $pageTitle = 'Employer Dashboard';
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
-                <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
-                    <?= strtoupper(substr($_SESSION['user']['name'], 0, 1)) ?>
-                </div>
+                <?php
+                $empLogoUrl = getLogoUrl($company['logo'] ?? null);
+                if ($empLogoUrl): ?>
+                    <img src="<?= e($empLogoUrl) ?>" alt="Logo"
+                         style="width:48px;height:48px;border-radius:12px;object-fit:cover;margin-bottom:10px;border:2px solid var(--border);">
+                <?php else: ?>
+                    <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
+                        <?= strtoupper(substr($company ? $company['name'] : $_SESSION['user']['name'], 0, 1)) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="sidebar-user-name"><?= e($company ? $company['name'] : $_SESSION['user']['name']) ?></div>
                 <div class="sidebar-user-role">Employer</div>
             </div>

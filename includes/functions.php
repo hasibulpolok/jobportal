@@ -166,6 +166,98 @@ function uploadCV($file) {
     return $filename;
 }
 
+
+// Upload Profile Photo
+function uploadPhoto($file, $oldFile = null) {
+    if (!isset($file) || $file['error'] === UPLOAD_ERR_NO_FILE) return null;
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Photo upload error: ' . $file['error']);
+    }
+    if ($file['size'] > MAX_PHOTO_SIZE) {
+        throw new Exception('Photo too large. Maximum size is 3MB.');
+    }
+    $finfo    = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+    if (!in_array($mimeType, ALLOWED_PHOTO_TYPES)) {
+        throw new Exception('Invalid file type. Only JPG, PNG, GIF, WEBP allowed.');
+    }
+    if ($oldFile && file_exists(PHOTO_UPLOAD_PATH . basename($oldFile))) {
+        unlink(PHOTO_UPLOAD_PATH . basename($oldFile));
+    }
+    $extMap   = ['image/jpeg'=>'jpg','image/png'=>'png','image/gif'=>'gif','image/webp'=>'webp'];
+    $ext      = $extMap[$mimeType] ?? 'jpg';
+    $filename = 'photo_' . uniqid() . '_' . time() . '.' . $ext;
+    $dest     = PHOTO_UPLOAD_PATH . $filename;
+    if (!is_dir(PHOTO_UPLOAD_PATH)) mkdir(PHOTO_UPLOAD_PATH, 0755, true);
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        throw new Exception('Failed to save photo.');
+    }
+    return $filename;
+}
+
+// Upload Company Logo
+function uploadLogo($file, $oldFile = null) {
+    if (!isset($file) || $file['error'] === UPLOAD_ERR_NO_FILE) return null;
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Logo upload error: ' . $file['error']);
+    }
+    if ($file['size'] > MAX_PHOTO_SIZE) {
+        throw new Exception('Logo too large. Maximum size is 3MB.');
+    }
+    $finfo    = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+    if (!in_array($mimeType, ALLOWED_PHOTO_TYPES)) {
+        throw new Exception('Invalid file type. Only JPG, PNG, GIF, WEBP allowed.');
+    }
+    if ($oldFile && file_exists(LOGO_UPLOAD_PATH . basename($oldFile))) {
+        unlink(LOGO_UPLOAD_PATH . basename($oldFile));
+    }
+    $extMap   = ['image/jpeg'=>'jpg','image/png'=>'png','image/gif'=>'gif','image/webp'=>'webp'];
+    $ext      = $extMap[$mimeType] ?? 'jpg';
+    $filename = 'logo_' . uniqid() . '_' . time() . '.' . $ext;
+    $dest     = LOGO_UPLOAD_PATH . $filename;
+    if (!is_dir(LOGO_UPLOAD_PATH)) mkdir(LOGO_UPLOAD_PATH, 0755, true);
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        throw new Exception('Failed to save logo.');
+    }
+    return $filename;
+}
+
+// Get profile photo full URL (returns null if no photo)
+function getPhotoUrl($photoFile) {
+    if ($photoFile && file_exists(PHOTO_UPLOAD_PATH . basename($photoFile))) {
+        return PHOTO_UPLOAD_URL . $photoFile;
+    }
+    return null;
+}
+
+// Get company logo full URL
+function getLogoUrl($logoFile) {
+    if ($logoFile && file_exists(LOGO_UPLOAD_PATH . basename($logoFile))) {
+        return LOGO_UPLOAD_URL . $logoFile;
+    }
+    return null;
+}
+
+// Render avatar: shows photo if exists, else colored initials circle
+function renderAvatar($name, $photoFile = null, $size = 48, $extraStyle = '') {
+    $photoUrl = getPhotoUrl($photoFile);
+    $initials  = strtoupper(substr(trim($name ?: 'U'), 0, 1));
+    $palette   = ['#1a56db','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#9333ea'];
+    $bg        = $palette[abs(crc32($name)) % count($palette)];
+    if ($photoUrl) {
+        return '<img src="' . htmlspecialchars($photoUrl, ENT_QUOTES, 'UTF-8') . '"
+                     alt="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '"
+                     style="width:' . $size . 'px;height:' . $size . 'px;border-radius:50%;
+                            object-fit:cover;flex-shrink:0;' . $extraStyle . '">';
+    }
+    return '<div style="width:' . $size . 'px;height:' . $size . 'px;border-radius:50%;
+                background:' . $bg . ';color:white;display:flex;align-items:center;
+                justify-content:center;font-family:var(--font-display);font-weight:800;
+                font-size:' . round($size * 0.38) . 'px;flex-shrink:0;' . $extraStyle . '">'
+           . $initials . '</div>';
+}
+
 // Paginate query
 function paginate($pdo, $sql, $params, $page, $perPage = 10) {
     $countSql = "SELECT COUNT(*) FROM ($sql) AS t";

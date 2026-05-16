@@ -10,10 +10,22 @@ define('DB_PASS', '');           // Change to your MySQL password
 define('DB_NAME', 'talentbridge');
 
 define('BASE_URL', 'http://localhost/talentbridge');
+
+// CV Upload
 define('UPLOAD_PATH', __DIR__ . '/../uploads/cvs/');
 define('UPLOAD_URL', BASE_URL . '/uploads/cvs/');
 define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
 define('ALLOWED_CV_TYPES', ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
+
+// Photo Upload
+define('PHOTO_UPLOAD_PATH', __DIR__ . '/../uploads/photos/');
+define('PHOTO_UPLOAD_URL', BASE_URL . '/uploads/photos/');
+define('MAX_PHOTO_SIZE', 3 * 1024 * 1024); // 3MB
+define('ALLOWED_PHOTO_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+// Logo Upload
+define('LOGO_UPLOAD_PATH', __DIR__ . '/../uploads/logos/');
+define('LOGO_UPLOAD_URL', BASE_URL . '/uploads/logos/');
 
 // Create PDO connection
 function getDB() {

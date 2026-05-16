@@ -116,9 +116,9 @@ $pageTitle = 'Login';
 
         <div style="margin-top:24px;padding:14px;background:var(--bg);border-radius:var(--radius-sm);font-size:0.78rem;color:var(--mid);">
             <strong>Demo Accounts:</strong><br>
-            Admin: admin@talentbridge.com / password<br>
-            Employer: employer@techinno.com / password<br>
-            Job Seeker: rafiq@example.com / password
+            Admin: admin@talentbridge.com / admin123<br>
+            Employer: employer@techinno.com / password123<br>
+            Job Seeker: rafiq@example.com / password123
         </div>
     </div>
 </div>

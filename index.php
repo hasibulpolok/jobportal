@@ -145,8 +145,9 @@ $pageTitle = 'Find Your Dream Job';
             <div class="job-card <?= $job['is_featured'] ? 'featured' : '' ?>">
                 <div class="job-card-top">
                     <div class="company-logo">
-                        <?php if ($job['company_logo']): ?>
-                            <img src="<?= BASE_URL ?>/uploads/logos/<?= e($job['company_logo']) ?>" alt="<?= e($job['company_name']) ?>">
+                        <?php $logoUrl = getLogoUrl($job['company_logo'] ?? null); ?>
+                        <?php if ($logoUrl): ?>
+                            <img src="<?= e($logoUrl) ?>" alt="<?= e($job['company_name']) ?>">
                         <?php else: ?>
                             <?= strtoupper(substr($job['company_name'], 0, 1)) ?>
                         <?php endif; ?>

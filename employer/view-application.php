@@ -68,9 +68,19 @@ $statusColors = [
     <div class="dashboard">
         <div class="sidebar">
             <div class="sidebar-header">
-                <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
-                    <?= strtoupper(substr($_SESSION['user']['name'], 0, 1)) ?>
-                </div>
+                <?php
+                $sidebarLogoStmt = getDB()->prepare("SELECT logo FROM companies WHERE user_id = ?");
+                $sidebarLogoStmt->execute([$_SESSION['user_id']]);
+                $sidebarLogoFile = $sidebarLogoStmt->fetchColumn();
+                $sidebarLogoUrl  = getLogoUrl($sidebarLogoFile ?: null);
+                if ($sidebarLogoUrl): ?>
+                    <img src="<?= e($sidebarLogoUrl) ?>" alt="Logo"
+                         style="width:48px;height:48px;border-radius:12px;object-fit:cover;margin-bottom:10px;border:2px solid var(--border);">
+                <?php else: ?>
+                    <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
+                        <?= strtoupper(substr($_SESSION['user']['name'], 0, 1)) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="sidebar-user-name"><?= e($_SESSION['user']['name']) ?></div>
                 <div class="sidebar-user-role">Employer</div>
             </div>
@@ -101,9 +111,13 @@ $statusColors = [
                     <!-- Header card -->
                     <div class="form-card" style="margin-bottom:20px;">
                         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-                            <div style="width:64px;height:64px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.5rem;flex-shrink:0;">
-                                <?= strtoupper(substr($application['applicant_name'], 0, 1)) ?>
-                            </div>
+                            <?php
+                            // Fetch applicant profile photo
+                            $appPhotoStmt = $pdo->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
+                            $appPhotoStmt->execute([$application['user_id']]);
+                            $appPhoto = $appPhotoStmt->fetchColumn();
+                            ?>
+                            <?= renderAvatar($application['applicant_name'], $appPhoto ?: null, 64) ?>
                             <div style="flex:1;">
                                 <h2 style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;"><?= e($application['applicant_name']) ?></h2>
                                 <div style="color:var(--mid);font-size:0.875rem;margin-top:4px;">

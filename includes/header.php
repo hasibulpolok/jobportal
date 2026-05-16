@@ -50,7 +50,23 @@ $role = userRole();
                 <?php endif; ?>
                 <div class="nav-user-menu">
                     <button class="nav-user-btn" id="userMenuBtn">
-                        <span class="user-avatar"><?= strtoupper(substr($currentUser['name'] ?? 'U', 0, 1)) ?></span>
+                        <?php
+                        // Fetch profile photo for navbar
+                        if ($role === 'jobseeker') {
+                            $navPhotoStmt = getDB()->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
+                            $navPhotoStmt->execute([$currentUser['id']]);
+                            $navPhoto = $navPhotoStmt->fetchColumn();
+                        } else {
+                            $navPhoto = null;
+                        }
+                        $navPhotoUrl = $navPhoto ? PHOTO_UPLOAD_URL . $navPhoto : null;
+                        ?>
+                        <?php if ($navPhotoUrl): ?>
+                            <img src="<?= e($navPhotoUrl) ?>" alt="avatar"
+                                 style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.4);">
+                        <?php else: ?>
+                            <span class="user-avatar"><?= strtoupper(substr($currentUser['name'] ?? 'U', 0, 1)) ?></span>
+                        <?php endif; ?>
                         <span><?= e(explode(' ', $currentUser['name'] ?? 'User')[0]) ?></span>
                         <span class="caret">▾</span>
                     </button>

@@ -55,6 +55,7 @@ $offset     = ($page - 1) * $perPage;
 
 $stmt = $pdo->prepare("
     SELECT u.*,
+        (SELECT profile_photo FROM user_profiles WHERE user_id = u.id LIMIT 1) AS profile_photo,
         (SELECT COUNT(*) FROM applications WHERE user_id = u.id) AS app_count,
         (SELECT COUNT(*) FROM jobs WHERE employer_id = u.id) AS job_count,
         (SELECT name FROM companies WHERE user_id = u.id LIMIT 1) AS company_name
@@ -132,9 +133,7 @@ $pageTitle = 'Manage Users';
             <tr style="<?= $user['status'] === 'banned' ? 'opacity:0.6;' : '' ?>">
                 <td>
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:var(--primary-light);color:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0;">
-                            <?= strtoupper(substr($user['name'], 0, 1)) ?>
-                        </div>
+                        <?= renderAvatar($user['name'], $user['profile_photo'] ?? null, 36) ?>
                         <div>
                             <div style="font-weight:700;font-size:0.9rem;"><?= e($user['name']) ?></div>
                             <div style="font-size:0.78rem;color:var(--mid);"><?= e($user['email']) ?></div>

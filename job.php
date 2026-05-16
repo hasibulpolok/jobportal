@@ -107,8 +107,13 @@ $pageTitle = $job['title'];
 <div class="job-detail-header">
     <div class="container">
         <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
-            <div class="company-logo" style="width:70px;height:70px;border-radius:14px;font-size:1.5rem;background:rgba(255,255,255,0.1);color:white;">
-                <?= strtoupper(substr($job['company_name'], 0, 1)) ?>
+            <?php $jobLogoUrl = getLogoUrl($job['company_logo'] ?? null); ?>
+            <div class="company-logo" style="width:70px;height:70px;border-radius:14px;font-size:1.5rem;overflow:hidden;flex-shrink:0;<?= $jobLogoUrl ? 'background:white;' : 'background:rgba(255,255,255,0.1);color:white;' ?>">
+                <?php if ($jobLogoUrl): ?>
+                    <img src="<?= e($jobLogoUrl) ?>" alt="<?= e($job['company_name']) ?>" style="width:100%;height:100%;object-fit:cover;">
+                <?php else: ?>
+                    <?= strtoupper(substr($job['company_name'], 0, 1)) ?>
+                <?php endif; ?>
             </div>
             <div style="flex:1;">
                 <h1 style="font-family:var(--font-display);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;margin-bottom:6px;"><?= e($job['title']) ?></h1>

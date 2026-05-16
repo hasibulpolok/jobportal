@@ -33,6 +33,7 @@ $offset     = ($page - 1) * $perPage;
 $stmt = $pdo->prepare("
     SELECT a.*, j.title AS job_title, j.id AS job_id,
            u.name AS applicant_name, u.email AS applicant_email,
+           up.profile_photo,
            up.phone, up.city, up.skills, up.linkedin
     FROM applications a
     JOIN jobs j ON a.job_id = j.id
@@ -68,9 +69,19 @@ $pageTitle = 'Applicants';
     <div class="dashboard">
         <div class="sidebar">
             <div class="sidebar-header">
-                <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
-                    <?= strtoupper(substr($_SESSION['user']['name'], 0, 1)) ?>
-                </div>
+                <?php
+                $sidebarLogoStmt = getDB()->prepare("SELECT logo FROM companies WHERE user_id = ?");
+                $sidebarLogoStmt->execute([$_SESSION['user_id']]);
+                $sidebarLogoFile = $sidebarLogoStmt->fetchColumn();
+                $sidebarLogoUrl  = getLogoUrl($sidebarLogoFile ?: null);
+                if ($sidebarLogoUrl): ?>
+                    <img src="<?= e($sidebarLogoUrl) ?>" alt="Logo"
+                         style="width:48px;height:48px;border-radius:12px;object-fit:cover;margin-bottom:10px;border:2px solid var(--border);">
+                <?php else: ?>
+                    <div style="width:48px;height:48px;background:var(--secondary);color:white;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;">
+                        <?= strtoupper(substr($_SESSION['user']['name'], 0, 1)) ?>
+                    </div>
+                <?php endif; ?>
                 <div class="sidebar-user-name"><?= e($_SESSION['user']['name']) ?></div>
                 <div class="sidebar-user-role">Employer</div>
             </div>
@@ -139,11 +150,16 @@ $pageTitle = 'Applicants';
                         <?php foreach ($applicants as $app): ?>
                         <tr>
                             <td>
-                                <div style="font-weight:700;"><?= e($app['applicant_name']) ?></div>
-                                <div style="font-size:0.78rem;color:var(--mid);"><?= e($app['applicant_email']) ?></div>
-                                <?php if ($app['city']): ?>
-                                    <div style="font-size:0.75rem;color:var(--mid);">📍 <?= e($app['city']) ?></div>
-                                <?php endif; ?>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <?= renderAvatar($app['applicant_name'], $app['profile_photo'] ?? null, 36) ?>
+                                    <div>
+                                        <div style="font-weight:700;"><?= e($app['applicant_name']) ?></div>
+                                        <div style="font-size:0.78rem;color:var(--mid);"><?= e($app['applicant_email']) ?></div>
+                                        <?php if ($app['city']): ?>
+                                            <div style="font-size:0.75rem;color:var(--mid);">📍 <?= e($app['city']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </td>
                             <td style="font-size:0.85rem;">
                                 <a href="<?= BASE_URL ?>/job.php?id=<?= $app['job_id'] ?>" style="font-weight:600;color:var(--primary);"><?= e($app['job_title']) ?></a>

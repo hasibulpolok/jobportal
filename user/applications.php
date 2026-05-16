@@ -40,7 +40,12 @@ $pageTitle = 'My Applications';
   <div class="dashboard">
     <div class="sidebar">
       <div class="sidebar-header">
-        <div style="width:48px;height:48px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:1.2rem;margin-bottom:10px;"><?= strtoupper(substr($user['name'],0,1)) ?></div>
+        <?php
+        $sidebarPhotoStmt = getDB()->prepare("SELECT profile_photo FROM user_profiles WHERE user_id = ?");
+        $sidebarPhotoStmt->execute([$_SESSION['user_id']]);
+        $sidebarPhoto = $sidebarPhotoStmt->fetchColumn();
+        ?>
+        <?= renderAvatar($_SESSION['user']['name'], $sidebarPhoto ?: null, 48, 'margin-bottom:10px;') ?>
         <div class="sidebar-user-name"><?= e($user['name']) ?></div>
         <div class="sidebar-user-role">Job Seeker</div>
       </div>
